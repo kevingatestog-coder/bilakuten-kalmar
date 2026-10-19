@@ -20,6 +20,14 @@
 .booking-app .service-options i{font-style:normal;margin-left:auto;color:var(--c-primary)}
 .booking-app .field{display:grid;gap:6px;margin-bottom:18px;font-size:.875rem;font-weight:600;color:var(--c-dark)}
 .booking-app .field>span{font-weight:400;display:contents}
+.booking-app .field>.date-control{display:block;position:relative;min-width:0}
+.booking-app .date-control input{min-width:0;min-height:50px;color-scheme:light;font-size:16px;text-align:left;-webkit-appearance:none;appearance:none}
+.booking-app .date-control input::-webkit-date-and-time-value{text-align:left;min-height:1.5em}
+.booking-app .date-placeholder{display:none;position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--c-gray-500);font-size:16px;pointer-events:none}
+.booking-app .date-control.is-empty input:not(:focus){color:transparent}
+.booking-app .date-control.is-empty input:not(:focus)::-webkit-datetime-edit{color:transparent}
+.booking-app .date-control.is-empty input:not(:focus)+.date-placeholder{display:block}
+.booking-app .field-hint{font-size:.8125rem;font-weight:400;line-height:1.5;color:var(--c-gray-500)}
 .booking-app .form-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .booking-app .field input,.booking-app .field textarea{padding:12px 14px;border:1px solid var(--c-gray-300);border-radius:var(--radius);background:#fff;width:100%}
 .booking-app .field textarea{resize:vertical;min-height:140px}
@@ -29,9 +37,11 @@
 .booking-app .time-options legend{font-size:.875rem;font-weight:600;margin-bottom:12px;color:var(--c-dark)}
 .booking-app .time-options legend>span{font-weight:400;color:var(--c-gray-500)}
 .booking-app #time-options{display:flex;flex-wrap:wrap;gap:10px}
+.booking-app #time-status{margin-bottom:12px}
+.booking-app #time-status.form-error{color:#a52a20}
 .booking-app #time-options label{cursor:pointer}
 .booking-app #time-options input{position:absolute;opacity:0;width:1px}
-.booking-app #time-options span{display:block;border:1px solid var(--c-gray-300);border-radius:var(--radius);padding:10px 16px;font-size:.875rem}
+.booking-app #time-options span{display:block;min-height:44px;border:1px solid var(--c-gray-300);border-radius:var(--radius);padding:10px 16px;font-size:.875rem}
 .booking-app #time-options input:checked+span{background:var(--c-primary);border-color:var(--c-primary);color:#fff}
 .booking-app #time-options input:focus-visible+span{outline:2px solid var(--c-primary);outline-offset:3px}
 .booking-app .booking-summary{background:var(--c-gray-50);border:1px solid var(--c-border);border-radius:var(--radius);padding:24px;position:sticky;top:105px}
@@ -44,6 +54,8 @@
 .booking-app .aside-contact>a{font-size:1.25rem;color:var(--c-primary);font-weight:700}
 .booking-app .aside-contact p{margin-top:12px;font-size:.8125rem}
 .booking-app .form-buttons{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:28px}
+.booking-app .form-step>.btn{max-width:100%;white-space:normal;justify-content:center;text-align:center}
+.booking-app .booking-layout>div{min-width:0}
 .booking-app .back-button{color:var(--c-primary);font-weight:600;padding:12px 0}
 .booking-app .btn:disabled{opacity:.6;cursor:wait}
 .booking-app .review-list{margin:24px 0 28px}
