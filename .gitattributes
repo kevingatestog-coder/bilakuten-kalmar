@@ -1,0 +1,2 @@
+# Preserve release bytes: asset URL versions use their SHA-256 hashes.
+* -text

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="sv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Installera Bilakuten i Kalmar</title><link rel="stylesheet" href="assets/css/setup.css?v=0eab20d03b4a"><script src="assets/js/setup.js?v=ae044f9cfd35" defer></script></head>
+<body><main><p class="eyebrow">BILAKUTEN I KALMAR · INSTALLATION</p><h1>Nu kopplar vi in bokningen.</h1><p>Hämta databasuppgifterna i Simplys kontrollpanel. Installationsnyckeln finns i filen <strong>INSTALLATIONSNYCKEL.txt</strong> i ditt installationspaket.</p>
+<form id="setup-form">
+<label>Installationsnyckel<input name="installationKey" type="password" required autocomplete="off"></label>
+<fieldset><legend>1. Simplys MySQL-databas</legend>
+<label>Databasvärd<input name="dbHost" required placeholder="Värdnamnet från Simplys kontrollpanel" autocomplete="off"></label>
+<label>Databasnamn<input name="dbName" required autocomplete="off"></label>
+<label>Databasanvändare<input name="dbUser" required autocomplete="off"></label>
+<label>Databaslösenord<input name="dbPassword" type="password" required autocomplete="off"></label>
+<label>Port<input name="dbPort" type="number" min="1" max="65535" value="3306" required></label>
+</fieldset><fieldset><legend>2. Verkstadens administration</legend>
+<label>Välj administratörslösenord<input name="adminPassword" type="password" minlength="16" maxlength="72" required autocomplete="new-password"></label>
+<label>Upprepa lösenordet<input name="adminPasswordRepeat" type="password" minlength="16" maxlength="72" required autocomplete="new-password"></label>
+<p class="note">Minst 16 tecken. Använd gärna en lösenordshanterare.</p>
+</fieldset><p>Tabellerna får prefixet <strong>bk_</strong>. Installationen raderar inga befintliga tabeller. Konfigurationen sparas privat och installationsguiden låses efteråt.</p><p id="setup-error" role="alert"></p><button type="submit">Anslut databasen och installera →</button></form>
+<section id="setup-success" hidden><h2>Installationen är klar.</h2><p>Bokningssystemet är anslutet. Öppna administrationen och logga in med lösenordet du valde.</p><p><a href="admin.html">Till administrationen →</a></p><p><a href="boka-tid.html">Prova en tidsförfrågan →</a></p><p class="note">Nu kan install.php, setup.html och setup-filerna i assets tas bort från webbservern. Installationen är redan låst.</p></section></main></body></html>
