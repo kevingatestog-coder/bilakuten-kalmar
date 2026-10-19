@@ -103,3 +103,41 @@
     observer.observe(el);
   });
 })();
+
+(() => {
+  'use strict';
+  const header = document.querySelector('.header');
+  const hamburger = document.querySelector('.hamburger');
+  const toggle = document.querySelector('.submenu-toggle');
+  if (!header || !hamburger || !toggle) return;
+  const item = toggle.closest('.nav-item');
+  const mobile = window.matchMedia('(max-width: 768px)');
+  const closeSubmenu = () => {
+    item.classList.remove('is-submenu-open');
+    toggle.setAttribute('aria-expanded', 'false');
+  };
+  const closeMenu = () => {
+    header.classList.remove('is-open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    closeSubmenu();
+  };
+  toggle.addEventListener('click', () => {
+    const open = item.classList.toggle('is-submenu-open');
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+  // The original hamburger handler runs first; reset the nested menu on close.
+  hamburger.addEventListener('click', () => {
+    if (!header.classList.contains('is-open')) closeSubmenu();
+  });
+  header.querySelectorAll('.nav a').forEach(link => link.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && header.classList.contains('is-open')) {
+      closeMenu();
+      hamburger.focus();
+    }
+  });
+  document.addEventListener('click', event => {
+    if (header.classList.contains('is-open') && !header.contains(event.target)) closeMenu();
+  });
+  mobile.addEventListener('change', closeMenu);
+})();

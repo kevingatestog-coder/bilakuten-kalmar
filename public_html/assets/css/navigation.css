@@ -1,0 +1,11 @@
+/* Keep desktop hover navigation; mobile services open only on request. */
+.submenu-toggle{display:none}
+@media(max-width:768px){
+ .header.is-open .nav-item>a{display:none}
+ .header.is-open .submenu-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:14px 24px;border-bottom:1px solid var(--c-border);color:var(--c-dark);font-weight:600;font-size:.875rem;line-height:1.6;letter-spacing:.04em;text-transform:uppercase;text-align:left}
+ .submenu-toggle:focus-visible{outline:2px solid var(--c-primary);outline-offset:-4px}
+ .submenu-toggle svg{flex-shrink:0;transition:transform .15s}
+ .submenu-toggle[aria-expanded="true"] svg{transform:rotate(180deg)}
+ .header.is-open .nav-item>.submenu{display:none}
+ .header.is-open .nav-item.is-submenu-open>.submenu{display:block}
+}
