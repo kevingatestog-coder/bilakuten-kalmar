@@ -36,8 +36,8 @@ Nyckeln i en äldre eller senare ZIP-version kan vara en annan. Använd den nyck
 ## Sluttest på webbhotellet
 
 - Öppna `/api/health`: svaret ska vara `{"status":"ok"}`.
-- Skicka en tydligt märkt testförfrågan via `/boka-tid.html`.
-- Logga in på `/admin.html`, kontrollera uppgifterna, ändra status och ladda om.
+- Skicka en tydligt märkt testförfrågan via `/boka-tid`.
+- Logga in på `/admin`, kontrollera uppgifterna, ändra status och ladda om.
 - Radera testförfrågan och logga ut. Kontrollera även bokningen och ringknapparna från mobilen.
 
 Den lokala PHP/MariaDB-versionen har klarat 21 testgrupper och bokning/administration har provats i webbläsare. Simplys faktiska domän, SSL, Apache-regler, filrättigheter och databas behöver sluttestas efter importen. Se `TESTRESULTAT.md`.
@@ -49,6 +49,8 @@ Bokningen är en förfrågan om önskad tid som verkstaden bekräftar manuellt. 
 Säkerhetskopiera databasen och privata `config.php`. Gallra ärenden som inte längre behövs. Efter lyckad installation kan `public_html/install.php`, `public_html/setup.html` samt `assets/js/setup.js` och `assets/css/setup.css` tas bort; installationen är redan låst.
 
 För senare filuppdateringar kan samma Git-URL importeras igen. Git-importen kopierar filer; den aktiverar inte automatisk publicering vid framtida pushar. Bevara privat konfiguration och kunddatabas.
+
+Sidorna har rena adresser, till exempel `/kontakt`, `/boka-tid` och `/admin`. `/index.html` omdirigeras till `/`, och gamla `.html`-länkar går automatiskt till motsvarande rena adress med bibehållna frågeparametrar. Uppdatera även `public_html/.htaccess` vid importen; filnamnen på servern ska fortfarande sluta på `.html`.
 
 ## Företag
 

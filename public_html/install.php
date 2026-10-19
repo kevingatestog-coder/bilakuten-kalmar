@@ -24,7 +24,7 @@ try {
     if (($_SERVER['REQUEST_METHOD']??'GET')!=='GET') throw new \Bilakuten\HttpError(405,'Metoden stöds inte.');
     if (is_file($private.'/config.php')||is_file($private.'/installed.lock')) {
         header('Content-Type: text/html; charset=utf-8');
-        exit('<!doctype html><html lang="sv"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Redan installerat</title><link rel="stylesheet" href="assets/css/setup.css?v=0eab20d03b4a"><main><h1>Installationen är låst.</h1><p>Webbplatsen är redan installerad.</p><a href="admin.html">Öppna administrationen →</a></main></html>');
+        exit('<!doctype html><html lang="sv"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Redan installerat</title><link rel="stylesheet" href="assets/css/setup.css?v=0eab20d03b4a"><main><h1>Installationen är låst.</h1><p>Webbplatsen är redan installerad.</p><a href="/admin">Öppna administrationen →</a></main></html>');
     }
     header('Content-Type: text/html; charset=utf-8');
     readfile(__DIR__.'/setup.html');

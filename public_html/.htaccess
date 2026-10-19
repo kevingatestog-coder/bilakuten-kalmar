@@ -1,4 +1,4 @@
-Options -Indexes
+Options -Indexes -MultiViews
 DirectoryIndex index.html
 ErrorDocument 404 /404.html
 
@@ -6,6 +6,24 @@ ErrorDocument 404 /404.html
 RewriteEngine On
 RewriteRule ^api(?:/.*)?$ api/index.php [END,QSA]
 RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L]
+
+# Redirect only browser requests, never Apache's internal DirectoryIndex lookup.
+RewriteCond %{THE_REQUEST} "\s/+index(?:\.html)?/?(?:[?\s])"
+RewriteRule ^index(?:\.html|/)?$ / [R=301,END]
+
+# Keep existing bookmarks and service selections when removing .html.
+RewriteCond %{THE_REQUEST} "\s/+[A-Za-z0-9_-]+\.html(?:[?\s])"
+RewriteCond %{ENV:REDIRECT_STATUS} ^$
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^([A-Za-z0-9_-]+)\.html$ /$1 [R=301,END]
+
+# Use one address per page, without a trailing slash.
+RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+RewriteRule ^([A-Za-z0-9_-]+)/$ /$1 [R=301,END]
+
+# Serve the existing HTML files behind the clean page addresses.
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^([A-Za-z0-9_-]+)$ $1.html [END]
 </IfModule>
 
 <IfModule mod_headers.c>
