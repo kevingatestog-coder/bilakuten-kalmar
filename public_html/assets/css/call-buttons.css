@@ -1,18 +1,36 @@
-/* Matching call and booking CTAs, stacked in that order. */
-.booking-cta-stack{display:inline-flex;flex-direction:column;align-items:stretch;gap:10px;max-width:100%;vertical-align:middle}
-.booking-cta-stack>.btn{justify-content:center}
+/* Ring sits to the left of booking where there is room; narrow cards stack. */
+.booking-cta-stack{display:inline-flex;flex-direction:row;flex-wrap:wrap;align-items:stretch;gap:12px;max-width:100%;vertical-align:middle}
+.booking-cta-stack>.btn{flex:1 0 auto;justify-content:center;text-align:center}
 .booking-cta-stack>.btn--primary{color:var(--c-white)}
-.booking-cta-stack--header{gap:6px;padding:8px 0}
+.booking-cta-stack--header{flex-wrap:nowrap;gap:8px;flex-shrink:0}
 .booking-cta-stack--header>.header-cta{justify-content:center;white-space:nowrap}
 .booking-cta-stack--mobile{display:none}
+.sidebar-card{container:booking-card / inline-size}
 .sidebar-card .booking-cta-stack{width:100%}
 .sidebar-card.dark .booking-cta-stack>.btn{margin-top:0}
+.cta-banner .container{flex-wrap:wrap}
+.cta-banner .booking-cta-stack{flex-shrink:0}
+@container booking-card (max-width:28rem){
+ .booking-cta-stack{flex-direction:column}
+}
+@media(min-width:769px) and (max-width:1099px){
+ .booking-cta-stack--header{flex-direction:column;gap:4px;padding:6px 0}
+ .booking-cta-stack--header>.header-cta{padding:8px 16px}
+ .header .container{gap:16px}
+ .nav a{padding-left:10px;padding-right:10px}
+}
 @media(max-width:768px){
  .booking-cta-stack--header{display:none}
  .header.is-open .nav{max-height:calc(100dvh - 80px);overflow-y:auto}
  .header.is-open .nav .booking-cta-stack--mobile{display:flex;margin:14px 24px;gap:10px}
- .header.is-open .nav .booking-cta-stack--mobile>.header-cta{display:flex;justify-content:center;margin:0;border:0;padding:10px 20px;background:var(--c-primary);color:#fff;font-size:.8125rem;border-radius:var(--radius)}
+ .header.is-open .nav .booking-cta-stack--mobile>.header-cta{display:flex;flex:1 0 auto;width:auto;justify-content:center;margin:0;border:0;padding:10px 20px;background:var(--c-primary);color:#fff;font-size:.8125rem;border-radius:var(--radius)}
  .header.is-open .nav .booking-cta-stack--mobile>.header-cta:hover{background:var(--c-primary-dark);color:#fff}
 }
-@media(max-width:480px){.hero-content .booking-cta-stack{width:100%}}
+@media(max-width:480px){
+ .booking-cta-stack{flex-direction:column}
+ .booking-cta-stack>.btn{padding-left:18px;padding-right:18px}
+ .hero-content .booking-cta-stack{width:100%}
+ .split>*{min-width:0}
+ .split-img{width:100%}
+}
 @media print{.booking-cta-stack--header,.booking-cta-stack--mobile{display:none}}
