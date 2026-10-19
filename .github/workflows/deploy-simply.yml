@@ -1,0 +1,74 @@
+name: Publicera till Simply
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - public_html/**
+      - bilakuten-private/**
+      - .github/**
+  pull_request:
+    paths:
+      - public_html/**
+      - bilakuten-private/**
+      - .github/**
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: simply-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Kontrollera publiceringsfiler
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Testa skyddet av privata filer
+        run: python3 -m unittest discover -s .github/tests -v
+      - name: Bygg avgränsat publiceringspaket
+        run: python3 .github/scripts/prepare_payload.py "$RUNNER_TEMP/simply-payload"
+      - name: Kontrollera skriptens syntax
+        run: |
+          bash -n .github/scripts/deploy-simply.sh
+          find "$RUNNER_TEMP/simply-payload" -type f -name '*.php' -print0 | xargs -0 -r -n 1 php -l
+
+  deploy:
+    name: Publicera webbplatsen
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Kontrollera anslutningsinställningar
+        id: settings
+        env:
+          SIMPLY_SSH_USER: ${{ secrets.SIMPLY_SSH_USER }}
+          SIMPLY_SSH_PRIVATE_KEY: ${{ secrets.SIMPLY_SSH_PRIVATE_KEY }}
+        run: |
+          if [[ -z "$SIMPLY_SSH_USER" || -z "$SIMPLY_SSH_PRIVATE_KEY" ]]; then
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+            echo '::notice::Publicering väntar på SIMPLY_SSH_USER och SIMPLY_SSH_PRIVATE_KEY. Se GITHUB-ACTIONS.md.'
+            printf '### Anslut Simply en gång\nLägg in repository secrets `SIMPLY_SSH_USER` och `SIMPLY_SSH_PRIVATE_KEY`. Följ [guiden](%s/blob/main/GITHUB-ACTIONS.md). Inga serverfiler har ändrats.\n' "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Bygg publiceringspaket
+        if: steps.settings.outputs.ready == 'true'
+        run: python3 .github/scripts/prepare_payload.py "$RUNNER_TEMP/simply-payload"
+      - name: Uppdatera Simply utan att radera serverfiler
+        if: steps.settings.outputs.ready == 'true'
+        env:
+          SIMPLY_SSH_USER: ${{ secrets.SIMPLY_SSH_USER }}
+          SIMPLY_SSH_PRIVATE_KEY: ${{ secrets.SIMPLY_SSH_PRIVATE_KEY }}
+          SIMPLY_DEPLOY_PATH: ${{ vars.SIMPLY_DEPLOY_PATH || '/var/www/bilverkstadikalmar.se' }}
+        run: bash .github/scripts/deploy-simply.sh "$RUNNER_TEMP/simply-payload"

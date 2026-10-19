@@ -2,7 +2,11 @@
 
 Hemsida och bokningssystem för Bilakuten i Kalmar AB. Detta är den färdiga PHP/MySQL-versionen för Simply. Node.js, npm och Composer behövs inte på webbhotellet. Ursprungligt utseende, WebP-logga, ringknappar och bokningsflöde är bevarade.
 
-## Importera standardgrenen
+## Publicera uppdateringar automatiskt
+
+GitHub Actions kan publicera nya pushar till `main` utan ny Git-import eller radering av servermapparna. Anslut Simply en gång enligt [GITHUB-ACTIONS.md](GITHUB-ACTIONS.md). Flödet bevarar privat konfiguration och installationslås och kör inga databasändringar. Innan SSH-anslutningen är konfigurerad kontrolleras bara publiceringsfilerna.
+
+## Första importen från standardgrenen
 
 Git-URL: `https://github.com/kevingatestog-coder/bilakuten-kalmar.git`
 
@@ -48,7 +52,7 @@ Bokningen är en förfrågan om önskad tid som verkstaden bekräftar manuellt. 
 
 Säkerhetskopiera databasen och privata `config.php`. Gallra ärenden som inte längre behövs. Efter lyckad installation kan `public_html/install.php`, `public_html/setup.html` samt `assets/js/setup.js` och `assets/css/setup.css` tas bort; installationen är redan låst.
 
-För senare filuppdateringar kan samma Git-URL importeras igen. Git-importen kopierar filer; den aktiverar inte automatisk publicering vid framtida pushar. Bevara privat konfiguration och kunddatabas.
+Använd GitHub Actions för senare filuppdateringar när anslutningen är klar. Git-importen aktiverar inte automatisk publicering i sig. Radera inte serverns mappar vid uppdateringar; privat konfiguration och kunddatabas ska behållas.
 
 Sidorna har rena adresser, till exempel `/kontakt`, `/boka-tid` och `/admin`. `/index.html` omdirigeras till `/`, och gamla `.html`-länkar går automatiskt till motsvarande rena adress med bibehållna frågeparametrar. Uppdatera även `public_html/.htaccess` vid importen; filnamnen på servern ska fortfarande sluta på `.html`.
 
