@@ -16,23 +16,31 @@ test -f "$payload/bilakuten-private/app.php"
 
 umask 077
 ssh_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/simply-ssh.XXXXXX")"
-trap 'rm -f "$ssh_dir/key" "$ssh_dir/known_hosts"; rmdir "$ssh_dir"' EXIT
+trap 'rm -f "$ssh_dir/key" "$ssh_dir/known_hosts" "$ssh_dir/simply-ssh"; rmdir "$ssh_dir"' EXIT
 printf '%s\n' "$SIMPLY_SSH_PRIVATE_KEY" | tr -d '\r' > "$ssh_dir/key"
 cp .github/simply_known_hosts "$ssh_dir/known_hosts"
 unset SIMPLY_SSH_PRIVATE_KEY
 ssh-keygen -y -P '' -f "$ssh_dir/key" > /dev/null
 ssh-keygen -F ssh.simply.com -f "$ssh_dir/known_hosts" > /dev/null
-ssh_args=(-i "$ssh_dir/key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=\"$ssh_dir/known_hosts\"" -o HostKeyAlgorithms=ssh-ed25519 -o ConnectTimeout=20)
+export SIMPLY_DEPLOY_KEY_FILE="$ssh_dir/key"
+export SIMPLY_DEPLOY_KNOWN_HOSTS="$ssh_dir/known_hosts"
+# rsync parses -e itself, so do not pass a second layer of quoted SSH options.
+cat > "$ssh_dir/simply-ssh" <<'SSH_WRAPPER'
+#!/usr/bin/env bash
+exec ssh -i "$SIMPLY_DEPLOY_KEY_FILE" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=\"$SIMPLY_DEPLOY_KNOWN_HOSTS\"" -o HostKeyAlgorithms=ssh-ed25519 -o ConnectTimeout=20 "$@"
+SSH_WRAPPER
+chmod 700 "$ssh_dir/simply-ssh"
+export PATH="$ssh_dir:$PATH"
 remote="$SIMPLY_SSH_USER@ssh.simply.com"
 
 # Nothing is uploaded until both the intended folders and active config exist.
-ssh "${ssh_args[@]}" "$remote" "set -eu; command -v rsync >/dev/null; test -d '$root/public_html'; test ! -L '$root/public_html'; test -d '$root/bilakuten-private'; test ! -L '$root/bilakuten-private'; test -r '$root/bilakuten-private/config.php'" || {
+simply-ssh "$remote" "set -eu; command -v rsync >/dev/null; test -d '$root/public_html'; test ! -L '$root/public_html'; test -d '$root/bilakuten-private'; test ! -L '$root/bilakuten-private'; test -r '$root/bilakuten-private/config.php'" || {
   echo '::error::SSH preflight failed. Check the username, SSH key, deployment path, rsync availability and existing private config.php. No files were uploaded.'
   exit 1
 }
 
-printf -v ssh_transport '%q ' ssh "${ssh_args[@]}"
-rsync_args=(-rz --delay-updates --omit-dir-times --no-perms --no-owner --no-group --protect-args -e "$ssh_transport")
+# The remote parent path is restricted above to plain /var/www path segments.
+rsync_args=(-rz --delay-updates --omit-dir-times --no-perms --no-owner --no-group -e simply-ssh)
 # Upload assets first; then backend and pages. There is deliberately no deletion.
 if [[ -d "$payload/public_html/assets" ]]; then
   rsync "${rsync_args[@]}" "$payload/public_html/assets/" "$remote:$root/public_html/assets/"

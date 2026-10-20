@@ -110,23 +110,8 @@ sys.exit(subprocess.call(remote))
         keygen = self.bin / 'ssh-keygen'
         keygen.write_text('#!/bin/sh\nexit 0\n')
         keygen.chmod(0o755)
-        # Keep the real rsync file/exclusion behavior; replace only its transport.
-        rsync = self.bin / 'rsync'
-        rsync.write_text('''#!/usr/bin/env python3
-import os,subprocess,sys
-args=[]
-iterator=iter(sys.argv[1:])
-for arg in iterator:
-    if arg=='-e':
-        next(iterator)
-    elif arg.startswith('test@ssh.simply.com:'):
-        args.append(arg.split(':',1)[1].replace('/var/www/bilverkstadikalmar.se',os.environ['MOCK_REMOTE']))
-    else:
-        args.append(arg)
-sys.exit(subprocess.call([os.environ['REAL_RSYNC'],*args]))
-''')
-        rsync.chmod(0o755)
-        self.environment = {**os.environ, 'PATH':str(self.bin)+os.pathsep+os.environ['PATH'], 'RUNNER_TEMP':str(self.root), 'SIMPLY_SSH_USER':'test', 'SIMPLY_SSH_PRIVATE_KEY':'dummy for isolated SSH mock', 'SIMPLY_DEPLOY_PATH':'/var/www/bilverkstadikalmar.se', 'MOCK_REMOTE':str(self.remote), 'REAL_RSYNC':shutil.which('rsync')}
+        # Use the real rsync client/server protocol, replacing only the SSH hop.
+        self.environment = {**os.environ, 'PATH':str(self.bin)+os.pathsep+os.environ['PATH'], 'RUNNER_TEMP':str(self.root), 'SIMPLY_SSH_USER':'test', 'SIMPLY_SSH_PRIVATE_KEY':'dummy for isolated SSH mock', 'SIMPLY_DEPLOY_PATH':'/var/www/bilverkstadikalmar.se', 'MOCK_REMOTE':str(self.remote)}
         runner_temp = self.root / 'runner with spaces'
         runner_temp.mkdir()
         self.environment['RUNNER_TEMP'] = str(runner_temp)
