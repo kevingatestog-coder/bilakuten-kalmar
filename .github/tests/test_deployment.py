@@ -123,6 +123,7 @@ sys.exit(subprocess.call([os.environ['REAL_RSYNC'],*args]))
 ''')
         rsync.chmod(0o755)
         self.environment = {**os.environ, 'PATH':str(self.bin)+os.pathsep+os.environ['PATH'], 'RUNNER_TEMP':str(self.root), 'SIMPLY_SSH_USER':'test', 'SIMPLY_SSH_PRIVATE_KEY':'dummy for isolated SSH mock', 'SIMPLY_DEPLOY_PATH':'/var/www/bilverkstadikalmar.se', 'MOCK_REMOTE':str(self.remote), 'REAL_RSYNC':shutil.which('rsync')}
+        self.environment['GITHUB_STEP_SUMMARY'] = str(self.root / 'test-summary.md')
 
     def deploy(self):
         return subprocess.run(['bash','.github/scripts/deploy-simply.sh',str(self.payload)],cwd=self.repository,env=self.environment,text=True,capture_output=True)
