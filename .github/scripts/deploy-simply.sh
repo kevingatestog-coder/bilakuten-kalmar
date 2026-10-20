@@ -22,7 +22,7 @@ cp .github/simply_known_hosts "$ssh_dir/known_hosts"
 unset SIMPLY_SSH_PRIVATE_KEY
 ssh-keygen -y -P '' -f "$ssh_dir/key" > /dev/null
 ssh-keygen -F ssh.simply.com -f "$ssh_dir/known_hosts" > /dev/null
-ssh_args=(-i "$ssh_dir/key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$ssh_dir/known_hosts" -o HostKeyAlgorithms=ssh-ed25519 -o ConnectTimeout=20)
+ssh_args=(-i "$ssh_dir/key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=\"$ssh_dir/known_hosts\"" -o HostKeyAlgorithms=ssh-ed25519 -o ConnectTimeout=20)
 remote="$SIMPLY_SSH_USER@ssh.simply.com"
 
 # Nothing is uploaded until both the intended folders and active config exist.

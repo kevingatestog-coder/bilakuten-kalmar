@@ -93,8 +93,12 @@ class RemoteDeploymentTest(unittest.TestCase):
         (self.payload / 'public_html/assets/site.css').write_text('new asset')
         ssh = self.bin / 'ssh'
         ssh.write_text('''#!/usr/bin/env python3
-import os,subprocess,sys
+import os,shlex,subprocess,sys
 args=sys.argv[1:]
+known_hosts=next(arg.split('=',1)[1] for arg in args if arg.startswith('UserKnownHostsFile='))
+paths=shlex.split(known_hosts)
+if len(paths)!=1 or not os.path.isfile(paths[0]):
+    sys.exit('Known hosts filename was split on spaces')
 index=next(i for i,a in enumerate(args) if a in {'test@ssh.simply.com','ssh.simply.com'})
 remote=args[index+1:]
 remote=[a.replace('/var/www/bilverkstadikalmar.se',os.environ['MOCK_REMOTE']) for a in remote]
@@ -123,6 +127,9 @@ sys.exit(subprocess.call([os.environ['REAL_RSYNC'],*args]))
 ''')
         rsync.chmod(0o755)
         self.environment = {**os.environ, 'PATH':str(self.bin)+os.pathsep+os.environ['PATH'], 'RUNNER_TEMP':str(self.root), 'SIMPLY_SSH_USER':'test', 'SIMPLY_SSH_PRIVATE_KEY':'dummy for isolated SSH mock', 'SIMPLY_DEPLOY_PATH':'/var/www/bilverkstadikalmar.se', 'MOCK_REMOTE':str(self.remote), 'REAL_RSYNC':shutil.which('rsync')}
+        runner_temp = self.root / 'runner with spaces'
+        runner_temp.mkdir()
+        self.environment['RUNNER_TEMP'] = str(runner_temp)
         self.environment['GITHUB_STEP_SUMMARY'] = str(self.root / 'test-summary.md')
 
     def deploy(self):

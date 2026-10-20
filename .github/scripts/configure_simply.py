@@ -36,7 +36,10 @@ def main():
     print('\nDen privata nyckeln visas aldrig och sparas utanför projektet i .ssh.')
     input('När den publika nyckeln är sparad hos Simply, tryck Enter här: ')
     known_hosts = Path(__file__).resolve().parents[1] / 'simply_known_hosts'
-    options = ['-i', str(key), '-o', 'BatchMode=yes', '-o', 'IdentitiesOnly=yes', '-o', 'StrictHostKeyChecking=yes', '-o', 'HostKeyAlgorithms=ssh-ed25519', '-o', 'UserKnownHostsFile='+str(known_hosts), '-o', 'ConnectTimeout=20']
+    # OpenSSH parses -o values again; quote a filename containing spaces inside
+    # the option, even though subprocess already preserves the outer argument.
+    known_hosts_setting = 'UserKnownHostsFile="'+known_hosts.as_posix()+'"'
+    options = ['-i', str(key), '-o', 'BatchMode=yes', '-o', 'IdentitiesOnly=yes', '-o', 'StrictHostKeyChecking=yes', '-o', 'HostKeyAlgorithms=ssh-ed25519', '-o', known_hosts_setting, '-o', 'ConnectTimeout=20']
     command = f"set -eu; command -v rsync >/dev/null; test -d '{root}/public_html'; test -d '{root}/bilakuten-private'; test -r '{root}/bilakuten-private/config.php'"
     subprocess.run(['ssh', *options, username+'@ssh.simply.com', command], check=True)
     print('\nSSH-anslutning och befintlig konfiguration är kontrollerade.')
