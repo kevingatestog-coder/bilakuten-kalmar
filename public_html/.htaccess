@@ -4,6 +4,15 @@ ErrorDocument 404 /404.html
 
 <IfModule mod_rewrite.c>
 RewriteEngine On
+
+# Keep pages and API requests on the HTTPS origin used by the installed site.
+# A 308 preserves the method and body if an old client submits to another URL.
+RewriteCond %{HTTP_HOST} ^bilverkstadikalmar\.se$ [NC]
+RewriteRule ^ https://www.bilverkstadikalmar.se%{REQUEST_URI} [R=308,END,NE]
+RewriteCond %{HTTP_HOST} ^www\.bilverkstadikalmar\.se$ [NC]
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://www.bilverkstadikalmar.se%{REQUEST_URI} [R=308,END,NE]
+
 RewriteRule ^api(?:/.*)?$ api/index.php [END,QSA]
 RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L]
 
