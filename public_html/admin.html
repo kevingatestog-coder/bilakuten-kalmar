@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bokningsadministration — Bilakuten i Kalmar</title>
-<meta name="description" content="Bokningsadministration hos Bilakuten i Kalmar.">
+<title>Administration — Bilakuten i Kalmar</title>
+<meta name="description" content="Administration hos Bilakuten i Kalmar.">
 <meta name="theme-color" content="#0d2540">
 <link rel="icon" type="image/webp" href="assets/brand/favicon-centrerad.webp?v=a3606082d729">
 <link rel="stylesheet" href="assets/css/site.css?v=598623374729">
@@ -54,7 +54,25 @@
 </header>
 <!-- END SHARED HEADER -->
 
-<main class="booking-app" id="main"><section class="page-header"><div class="container"><span class="eyebrow">Bilakuten i Kalmar</span><h1>Bokningsadministration</h1><p class="breadcrumb"><a href="/">Hem</a><span>/</span>Bokningsadministration</p></div></section><section class="section"><div class="container"><div class="section-heading"><div><p class="eyebrow"><span>BILAKUTEN</span> VERKSTADENS ADMINISTRATION</p><h2 class="admin-title">Tidsförfrågningar.</h2></div><button class="back-button" id="logout" hidden>Logga ut ↗</button></div><form id="admin-login" class="form login-form"><label class="field">Lösenord<input type="password" name="password" autocomplete="current-password" required></label><button class="btn btn--primary" type="submit">Logga in <span aria-hidden="true">↗</span></button></form><p id="admin-feedback" role="status"></p><div id="admin-bookings" hidden><div class="admin-controls"><label>Status <select id="status-filter"><option value="all">Alla förfrågningar</option><option value="pending">Nya</option><option value="confirmed">Bekräftade</option><option value="completed">Avslutade</option><option value="cancelled">Avbokade</option></select></label><button id="refresh-bookings" class="back-button">Uppdatera ↻</button></div><div id="booking-list"></div></div></div></section><script src="assets/js/admin.js?v=f47b3891e631" defer></script></main>
+<main class="booking-app" id="main"><section class="page-header"><div class="container"><span class="eyebrow">Bilakuten i Kalmar</span><h1>Administration</h1><p class="breadcrumb"><a href="/">Hem</a><span>/</span>Administration</p></div></section><section class="section admin-section"><div class="container">
+<div class="section-heading"><div><p class="eyebrow"><span>BILAKUTEN</span> VERKSTADENS ADMINISTRATION</p><h2 class="admin-title">Bokningar &amp; offerter.</h2></div><button class="back-button" id="logout" hidden>Logga ut ↗</button></div>
+<form id="admin-login" class="form login-form"><label class="field">Lösenord<input type="password" name="password" autocomplete="current-password" required></label><button class="btn btn--primary" type="submit">Logga in <span aria-hidden="true">↗</span></button></form><p id="admin-feedback" role="status"></p>
+<div id="admin-bookings" hidden>
+<nav class="admin-tabs" aria-label="Administration"><button type="button" data-admin-view="booking-workspace" aria-pressed="true">Tidsförfrågningar</button><button type="button" data-admin-view="quotes-workspace" aria-pressed="false">Skapa offert</button></nav>
+<div id="booking-workspace"><div class="admin-controls"><label>Status <select id="status-filter"><option value="all">Alla förfrågningar</option><option value="pending">Nya</option><option value="confirmed">Bekräftade</option><option value="completed">Avslutade</option><option value="cancelled">Avbokade</option></select></label><button id="refresh-bookings" class="back-button">Uppdatera ↻</button></div><div id="booking-list"></div></div>
+<div id="quotes-workspace" hidden>
+<div class="quote-toolbar"><div><h3>Skapa offert</h3><p>Fyll i uppgifterna och spara en PDF eller skriv ut.</p></div><button type="button" class="back-button" id="quote-new">Ny offert ↗</button></div>
+<div class="quote-layout"><form id="quote-form" class="form quote-editor">
+<fieldset><legend>Offertuppgifter</legend><div class="form-row"><label class="field">Offertnummer<input name="reference" required maxlength="50"></label><label class="field">Er referens<input name="customerReference" maxlength="100"></label></div><div class="form-row"><label class="field">Offertdatum<input type="date" name="issued" required></label><label class="field">Giltig till<input type="date" name="validUntil" required></label></div></fieldset>
+<fieldset><legend>Kund &amp; fordon</legend><label class="field">Kund / företag<input name="customerName" required maxlength="120" autocomplete="off"></label><label class="field">Adress<textarea name="customerAddress" maxlength="400" rows="2"></textarea></label><div class="form-row"><label class="field">Telefon<input name="customerPhone" type="tel" maxlength="40"></label><label class="field">E-post<input name="customerEmail" type="email" maxlength="160"></label></div><div class="form-row"><label class="field">Registreringsnummer<input name="registration" maxlength="20"></label><label class="field">Fordon / modell<input name="vehicle" maxlength="100"></label></div></fieldset>
+<fieldset><legend>Arbete &amp; delar</legend><p class="quote-help">Ange à-pris exklusive moms. Beloppen räknas om automatiskt.</p><div id="quote-lines"></div><button type="button" class="back-button" id="quote-add-line">+ Lägg till rad</button></fieldset>
+<fieldset><legend>Villkor &amp; meddelande</legend><label class="field"><span class="sr-only">Villkor och meddelande</span><textarea name="notes" rows="4" maxlength="2000" placeholder="Till exempel vad som ingår och eventuella förbehåll."></textarea></label></fieldset>
+<p class="quote-help">Spara en PDF innan du lämnar sidan. Offerten lagras inte på servern.</p><p id="quote-feedback" role="status" aria-live="polite"></p><div class="quote-actions"><button class="btn btn--primary" type="submit" id="quote-pdf">Spara PDF ↓</button><button class="btn btn--outline" type="button" id="quote-print">Skriv ut ↗</button></div>
+</form><div class="quote-preview-wrap"><p class="quote-preview-label">FÖRHANDSVISNING · A4</p><article id="quote-preview" class="quote-paper" aria-label="Förhandsvisning av offert"></article></div></div>
+</div></div></div></section>
+<link rel="stylesheet" href="assets/css/quotes.css?v=6088a76a3b37">
+<script src="assets/js/quote-model.js?v=735c6b7bd426" defer></script><script src="assets/js/vendor-jspdf.js?v=effc1b5a0488" defer></script><script src="assets/js/quote-font.js?v=5d3f8cd722c3" defer></script><script src="assets/js/quote-pdf.js?v=97f6505c6c60" defer></script><script src="assets/js/admin.js?v=e0f59b033335" defer></script><script src="assets/js/quotes.js?v=05147352cae3" defer></script>
+</main>
 
 <!-- BEGIN SHARED FOOTER -->
 <footer class="footer">

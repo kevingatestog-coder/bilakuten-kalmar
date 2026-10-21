@@ -200,6 +200,7 @@ function handle_api(string $private): never {
         }
         if ($path==='/api/admin/logout'&&$method==='POST') { query($db,'DELETE FROM bk_sessions WHERE token_hash=?',[hash('sha256',session_token())]);session_cookie('',$config,time()-3600);json_response(200,['ok'=>true]); }
         if (str_starts_with((string)$path,'/api/admin/')) require_admin($db,$config);
+        if ($path==='/api/admin/session'&&$method==='GET') json_response(200,['ok'=>true]);
         if ($path==='/api/admin/bookings'&&$method==='GET') json_response(200,['bookings'=>query($db,'SELECT reference,service,date,time,name,phone,email,registration,message,status,created_at,updated_at FROM bk_bookings ORDER BY date DESC,time DESC,created_at DESC')->fetchAll()]);
         if (preg_match('~^/api/admin/bookings/(BK-[A-F0-9]{10})$~D',(string)$path,$match)) {
             if ($method==='PATCH') {
