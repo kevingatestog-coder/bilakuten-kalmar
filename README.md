@@ -46,6 +46,10 @@ Nyckeln i en äldre eller senare ZIP-version kan vara en annan. Använd den nyck
 
 Den lokala PHP/MariaDB-versionen har klarat 21 testgrupper och bokning/administration har provats i webbläsare. Simplys faktiska domän, SSL, Apache-regler, filrättigheter och databas behöver sluttestas efter importen. Se `TESTRESULTAT.md`.
 
+## Offerter och kvitton
+
+Efter inloggning finns fliken **Offerter & kvitton**. Välj dokumenttyp, fyll i kund och rader och använd **Spara PDF** eller **Skriv ut**. För kvitton anges betalningsdatum, betalsätt och eventuell betalningsreferens. Bekräfta att hela beloppet är mottaget innan kvittot skapas. Formuläret hanterar inga betalningar. Dokumenten sparas på datorn som PDF; utkast lagras inte på servern och rensas vid utloggning.
+
 ## Drift
 
 Bokningen är en förfrågan om önskad tid som verkstaden bekräftar manuellt. Inga lyftar eller mekaniker reserveras automatiskt. Inga automatiska mejl eller SMS skickas.

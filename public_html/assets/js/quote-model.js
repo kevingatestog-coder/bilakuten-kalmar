@@ -1,5 +1,6 @@
 (function (root) {
   'use strict';
+  const paymentMethods={swish:'Swish',card:'Kort',cash:'Kontant',bank:'Banköverföring',other:'Annat'};
   const money = cents => new Intl.NumberFormat('sv-SE', {style:'currency',currency:'SEK'}).format(cents / 100);
   function decimal(value, label, max) {
     const text = String(value).trim().replace(/\s/g, '').replace(',', '.');
@@ -30,15 +31,23 @@
     return /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0,10)===value;
   }
   function validate(quote) {
-    const limits = {reference:50,customerReference:100,customerName:120,customerAddress:400,customerPhone:40,customerEmail:160,registration:20,vehicle:100,notes:2000}, clean = {...quote};
+    const kind=quote.kind??'quote';
+    if(!['quote','receipt'].includes(kind))throw Error('Välj offert eller kvitto.');
+    const limits = {reference:50,customerReference:100,customerName:120,customerAddress:400,customerPhone:40,customerEmail:160,registration:20,vehicle:100,notes:2000,paymentReference:100}, clean = {...quote,kind};
     for (const [key,limit] of Object.entries(limits)) {
       const value = typeof quote[key] === 'string' ? quote[key].trim() : '';
       if (value.length > limit || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(value)) throw Error('Kontrollera offertens textfält.');
       clean[key] = ['customerAddress','notes'].includes(key) ? value : value.replace(/[\r\n]+/g,' ');
     }
-    if (!clean.reference || !clean.customerName) throw Error('Fyll i offertnummer och kundens namn.');
+    if (!clean.reference || !clean.customerName) throw Error('Fyll i dokumentnummer och kundens namn.');
     if (clean.customerAddress.split(/\r?\n/).length > 6) throw Error('Ange kundadressen på högst sex rader.');
-    if (!date(quote.issued) || !date(quote.validUntil) || quote.validUntil < quote.issued) throw Error('Giltighetstiden får inte vara före offertdatumet.');
+    if (!date(quote.issued)) throw Error('Ange ett giltigt dokumentdatum.');
+    if(kind==='quote'&&(!date(quote.validUntil)||quote.validUntil<quote.issued))throw Error('Giltighetstiden får inte vara före offertdatumet.');
+    if(kind==='receipt'){
+      if(!date(quote.paidOn)||quote.paidOn>quote.issued)throw Error('Ange ett giltigt betalningsdatum, senast kvittodatumet.');
+      if(!Object.hasOwn(paymentMethods,quote.paymentMethod))throw Error('Välj betalsätt för kvittot.');
+      if(quote.paymentConfirmed!==true)throw Error('Bekräfta att hela betalningen är mottagen innan du skapar kvittot.');
+    }
     if (clean.customerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean.customerEmail)) throw Error('Kontrollera kundens e-postadress.');
     const totals = calculate(quote.items);
     for (const line of totals.lines) {
@@ -48,11 +57,24 @@
     clean.registration = clean.registration.toUpperCase();
     return {...clean, totals};
   }
-  function fresh(now = new Date()) {
+  function fresh(now = new Date(),kind='quote') {
     const issued = new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Stockholm',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
     const expiry = new Date(issued+'T12:00:00Z'); expiry.setUTCDate(expiry.getUTCDate()+30);
     const stamp = new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Stockholm',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(now).replaceAll(':','');
-    return {reference:'OFF-'+issued.replaceAll('-','')+'-'+stamp+'-'+Math.random().toString(16).slice(2,6).toUpperCase(),issued,validUntil:expiry.toISOString().slice(0,10),customerReference:'',customerName:'',customerAddress:'',customerPhone:'',customerEmail:'',registration:'',vehicle:'',notes:'',items:[{description:'',quantity:'1',price:'0',vat:'25'}]};
+    return {kind,reference:(kind==='receipt'?'KVT':'OFF')+'-'+issued.replaceAll('-','')+'-'+stamp+'-'+Math.floor(Math.random()*65536).toString(16).padStart(4,'0').toUpperCase(),issued,validUntil:expiry.toISOString().slice(0,10),paidOn:issued,paymentMethod:'',paymentReference:'',paymentConfirmed:false,customerReference:'',customerName:'',customerAddress:'',customerPhone:'',customerEmail:'',registration:'',vehicle:'',notes:'',items:[{description:'',quantity:'1',price:'0',vat:'25'}]};
   }
-  root.BilakutenQuote = {money,decimal,calculate,validate,fresh};
+  function withKind(q,kind){
+    if(!['quote','receipt'].includes(kind))throw Error('Välj offert eller kvitto.');
+    const reference=/^(?:OFF|KVT)-\d{8}-\d{6}-[A-F0-9]{4}$/.test(q.reference)?(kind==='receipt'?'KVT':'OFF')+q.reference.slice(3):q.reference;
+    return {...q,kind,reference,paidOn:q.paidOn||q.issued,paymentConfirmed:false};
+  }
+  function describe(q){
+    const receipt=q.kind==='receipt',title=receipt?'Kvitto':'Offert';
+    const metadata=[(receipt?'Kvittodatum: ':'Offertdatum: ')+q.issued];
+    if(receipt){metadata.push('Betalningsdatum: '+q.paidOn,'Betalsätt: '+(paymentMethods[q.paymentMethod]||'Ej valt'));if(q.paymentReference)metadata.push('Betalningsreferens: '+q.paymentReference);}
+    else metadata.push('Giltig till: '+q.validUntil);
+    for(const [label,value]of [['Er referens',q.customerReference],['Reg.nr',q.registration?.toUpperCase()],['Fordon',q.vehicle]])if(value)metadata.push(label+': '+value);
+    return {receipt,title,heading:title.toUpperCase(),metadata,totalLabel:receipt&&q.paymentConfirmed?'Betalt inkl. moms':'Totalt inkl. moms',notice:receipt?(q.paymentConfirmed?'Betalning mottagen. Tack för ditt besök!':'Utkast - bekräfta mottagen betalning före utskrift.'):'Detta är en offert, inte en faktura.'};
+  }
+  root.BilakutenQuote = {money,decimal,calculate,validate,fresh,withKind,describe,paymentMethods};
 })(globalThis);
